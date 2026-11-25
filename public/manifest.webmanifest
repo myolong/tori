@@ -1,0 +1,16 @@
+{
+  "name": "토리 숲",
+  "short_name": "토리 숲",
+  "description": "할 일을 끝낼 때마다 토리가 자라고, 다 자란 나무로 나만의 숲을 만드는 습관 앱",
+  "lang": "ko",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F3F6EE",
+  "theme_color": "#5E8A4A",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#5E8A4A">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<title>토리 숲</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+/* Layout: 휴대폰 한 화면 앱 — 위 토리, 가운데 오늘 할 일, 아래 탭(오늘/내 숲) */
+:root{
+  --bg:#f3f6ee; --surface:#ffffff; --ink:#2f3a2c; --muted:#6b7a64;
+  --moss:#5e8a4a; --acorn:#a8703c; --drop:#4f9bd9; --line:#d9e2cf;
+  --soft:#e7efdf; --sky1:#dff0fb; --sky2:#f4fae9; --danger:#c4574c;
+  --display:"Jua","Gowun Dodum",system-ui,sans-serif;
+  --body:"Gowun Dodum",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#171d16; --surface:#212a1f; --ink:#e6eedf; --muted:#a3b39a; --moss:#8cbf73; --line:#34412f;
+  --soft:#2a3527; --drop:#6fb3ea; --sky1:#1d2a36; --sky2:#223020; --danger:#e58a80; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#171d16; --surface:#212a1f; --ink:#e6eedf; --muted:#a3b39a; --moss:#8cbf73; --line:#34412f;
+  --soft:#2a3527; --drop:#6fb3ea; --sky1:#1d2a36; --sky2:#223020; --danger:#e58a80; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.app{max-width:440px;margin:0 auto;padding-block:16px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:14px}
+h1,h2{font-family:var(--display);font-weight:400;margin:0}
+p{margin:0}
+.top{display:flex;justify-content:space-between;align-items:center}
+.top h1{font-size:1.4rem;color:var(--moss)}
+.pill{font-family:var(--display);font-size:.95rem;color:var(--acorn);background:var(--surface);border:1.5px solid var(--line);border-radius:99px;padding:2px 12px}
+.date{font-size:.85rem;color:var(--muted)}
+.stage-box{background:linear-gradient(180deg,var(--sky1),var(--sky2));border-radius:24px;padding:14px;display:grid;justify-items:center;gap:8px;border:1.5px solid var(--line)}
+.stage-box svg{width:190px;height:auto}
+.bubble{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 12px;font-size:.95rem;text-align:center}
+.gauge{width:100%;display:grid;gap:4px}
+.bar{height:14px;border-radius:99px;background:var(--surface);border:1.5px solid var(--line);overflow:hidden}
+.fill{height:100%;background:linear-gradient(90deg,#8cc8f2,var(--drop));width:0;transition:width .4s}
+.lbl{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.btn{border:0;border-radius:12px;padding:9px 16px;font-family:var(--display);font-size:1rem;background:var(--moss);color:#fff;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--moss);border:1.5px solid var(--moss)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--drop);outline-offset:2px}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline}
+.sec-h h2{font-size:1.15rem}
+.sec-h span{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.tasks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.task{display:flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:4px 6px 4px 4px}
+.task .tap{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:none;border:0;padding:8px;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.chk{width:24px;height:24px;border-radius:50%;border:2px solid var(--moss);flex:none;display:grid;place-items:center;color:#fff;font-size:.8rem}
+.done .chk{background:var(--moss)}
+.done .t{text-decoration:line-through;color:var(--muted)}
+.t{overflow-wrap:anywhere}
+.badge{font-size:.72rem;color:var(--moss);border:1px solid var(--moss);border-radius:99px;padding:0 6px;flex:none}
+.del{background:none;border:0;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:6px 8px;border-radius:8px}
+.add{display:grid;gap:8px;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:10px}
+.add .row{display:flex;gap:8px}
+.add input[type=text]{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:12px;padding:9px 10px;font:inherit;background:var(--bg);color:var(--ink)}
+.add label{font-size:.88rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.empty{color:var(--muted);font-size:.92rem;text-align:center;padding:12px}
+.forest-view{background:linear-gradient(180deg,var(--sky1),var(--sky2));border-radius:20px;border:1.5px solid var(--line);overflow:hidden}
+.forest-view svg{display:block;width:100%;height:auto}
+.miles{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.miles li{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;display:flex;justify-content:space-between;gap:8px;font-size:.92rem}
+.miles li.on{border-color:var(--moss)}
+.miles li b{font-family:var(--display);font-weight:400}
+.miles li span{color:var(--muted)}
+.miles li.on span{color:var(--moss)}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:8px;background:var(--surface);border-top:1.5px solid var(--line);padding-top:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.tabs button{flex:1;max-width:200px;border:0;background:none;font-family:var(--display);font-size:1.05rem;color:var(--muted);padding:8px;border-radius:12px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--soft);color:var(--moss)}
+[hidden]{display:none!important}
+.view{display:grid;gap:14px;min-width:0}
+.small{font-size:.82rem;color:var(--muted);text-align:center}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:.82rem;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.fill{transition:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="gBody" cx="38%" cy="30%" r="75%">
+      <stop offset="0" stop-color="#f1c08a"/><stop offset=".45" stop-color="#c58a50"/><stop offset="1" stop-color="#7c4b22"/>
+    </radialGradient>
+    <radialGradient id="gCap" cx="40%" cy="25%" r="80%">
+      <stop offset="0" stop-color="#a77a52"/><stop offset=".55" stop-color="#6b4527"/><stop offset="1" stop-color="#3e2612"/>
+    </radialGradient>
+    <radialGradient id="gLeaf" cx="35%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#bfe89a"/><stop offset=".5" stop-color="#6fb04f"/><stop offset="1" stop-color="#3a7429"/>
+    </radialGradient>
+    <radialGradient id="gLeafDeep" cx="35%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#94d06f"/><stop offset=".55" stop-color="#4f9339"/><stop offset="1" stop-color="#2b5d1f"/>
+    </radialGradient>
+    <radialGradient id="gEye" cx="35%" cy="30%" r="70%">
+      <stop offset="0" stop-color="#5a4434"/><stop offset="1" stop-color="#140b05"/>
+    </radialGradient>
+    <linearGradient id="gTrunk" x1="0" x2="1">
+      <stop offset="0" stop-color="#6b4527"/><stop offset=".45" stop-color="#b07a45"/><stop offset="1" stop-color="#5a3519"/>
+    </linearGradient>
+    <linearGradient id="gHill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a9d98a"/><stop offset="1" stop-color="#5f9a45"/>
+    </linearGradient>
+    <linearGradient id="gWater" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#bfe3fa"/><stop offset="1" stop-color="#5aa6dc"/>
+    </linearGradient>
+    <filter id="fSoft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4"/></filter>
+    <filter id="fBlush" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>
+  </defs>
+</svg>
+<div class="app">
+  <div class="top">
+    <div><h1>토리 숲</h1><p class="date" id="today"></p></div>
+    <span class="pill">별사탕 <span id="candy">0</span></span>
+  </div>
+
+  <div id="view-today" class="view">
+    <div class="stage-box">
+      <div class="bubble" id="bubble">안녕! 나는 토리야. 할 일을 하나 적어 줄래?</div>
+      <div id="hero"></div>
+      <div class="gauge">
+        <div class="bar"><div class="fill" id="fill"></div></div>
+        <div class="lbl"><span id="stageName"></span><span id="dropTxt"></span></div>
+      </div>
+      <button class="btn" type="button" id="plantBtn" hidden>숲에 심기</button>
+    </div>
+
+    <div class="sec-h"><h2>오늘 할 일</h2><span id="doneTxt"></span></div>
+    <ul class="tasks" id="tasks"></ul>
+    <form class="add" id="addForm">
+      <div class="row">
+        <input id="newTask" type="text" placeholder="할 일 한 줄 (예: 10분 산책)" maxlength="40" aria-label="새 할 일">
+        <button class="btn" type="submit">추가</button>
+      </div>
+      <label><input type="checkbox" id="repeat"> 매일 반복 (내일 다시 나타나요)</label>
+    </form>
+    <p class="small">하루 물방울은 최대 10개까지 받아요. 기록은 이 휴대폰(브라우저)에만 저장돼요.</p>
+  </div>
+
+  <div id="view-forest" class="view" hidden>
+    <div class="sec-h"><h2 id="forestName">내 숲</h2><span id="forestCount"></span></div>
+    <div class="forest-view" id="forestView"></div>
+    <ul class="miles" id="miles"></ul>
+    <p class="small">다 자란 토리를 숲에 심으면 나무가 한 그루씩 늘어요.</p>
+    <p class="small"><button class="linkbtn" type="button" id="resetAll">기록 모두 지우기</button></p>
+  </div>
+</div>
+
+<nav class="tabs" role="tablist">
+  <button type="button" role="tab" id="tab-today" aria-selected="true">오늘</button>
+  <button type="button" role="tab" id="tab-forest" aria-selected="false">내 숲</button>
+</nav>
+<script>
+function face(v, eyeY, mood){
+  let s='';
+  if(mood==='sleep'){
+    s += `<path d="M78 ${eyeY} q7 6 14 0" stroke="#2b1d12" stroke-width="3.2" fill="none" stroke-linecap="round"/><path d="M108 ${eyeY} q7 6 14 0" stroke="#2b1d12" stroke-width="3.2" fill="none" stroke-linecap="round"/>`;
+    s += `<text x="150" y="${eyeY-44}" font-family="Jua, sans-serif" font-size="20" fill="#4f9bd9">Z</text><text x="166" y="${eyeY-60}" font-family="Jua, sans-serif" font-size="14" fill="#4f9bd9">z</text>`;
+  } else if(v==='C'){
+    s += `<path d="M77 ${eyeY} q8 -5 16 0" stroke="#2b1d12" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M107 ${eyeY} q8 -5 16 0" stroke="#2b1d12" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  } else {
+    const r = v==='A'?8:6;
+    s += `<circle cx="85" cy="${eyeY}" r="${r}" fill="url(#gEye)"/><circle cx="115" cy="${eyeY}" r="${r}" fill="url(#gEye)"/>`;
+    s += `<circle cx="${85-r*0.3}" cy="${eyeY-r*0.4}" r="${r*0.38}" fill="#fff"/><circle cx="${115-r*0.3}" cy="${eyeY-r*0.4}" r="${r*0.38}" fill="#fff"/><circle cx="${85+r*0.35}" cy="${eyeY+r*0.35}" r="${r*0.16}" fill="#fff" opacity=".8"/><circle cx="${115+r*0.35}" cy="${eyeY+r*0.35}" r="${r*0.16}" fill="#fff" opacity=".8"/>`;
+  }
+  s += `<ellipse cx="72" cy="${eyeY+13}" rx="9" ry="5" fill="#ff8f86" opacity=".55" filter="url(#fBlush)"/><ellipse cx="128" cy="${eyeY+13}" rx="9" ry="5" fill="#ff8f86" opacity=".55" filter="url(#fBlush)"/>`;
+  s += mood==='sleep' ? `<ellipse cx="100" cy="${eyeY+17}" rx="4" ry="3" fill="#5a2a1a"/>`
+                      : `<path d="M93 ${eyeY+13} q7 8 14 0 q-7 3 -14 0Z" fill="#5a2a1a" stroke="#2b1d12" stroke-width="2" stroke-linejoin="round"/>`;
+  return s;
+}
+
+function tori(v, stage, mood){
+  let s = '';
+  // 바닥 그림자
+  s += `<ellipse cx="100" cy="190" rx="48" ry="7" fill="#1c2a12" opacity=".22" filter="url(#fSoft)"/>`;
+  // 5단계: 뒤쪽 나무 잎
+  if(stage>=5){
+    s += `<circle cx="70" cy="58" r="26" fill="url(#gLeafDeep)"/><circle cx="130" cy="58" r="26" fill="url(#gLeafDeep)"/><circle cx="100" cy="38" r="34" fill="url(#gLeaf)"/>`;
+    s += `<ellipse cx="88" cy="24" rx="12" ry="7" fill="#fff" opacity=".35"/>`;
+    s += `<circle cx="118" cy="46" r="4" fill="#ff8f86"/><circle cx="76" cy="62" r="3.5" fill="#ffd36b"/>`;
+  }
+  // 다리
+  if(stage>=3){
+    s += `<ellipse cx="86" cy="180" rx="9" ry="10" fill="url(#gCap)"/><ellipse cx="114" cy="180" rx="9" ry="10" fill="url(#gCap)"/>`;
+  }
+  let body, cap, eyeY, top;
+  if(v==='A'){
+    body = `<ellipse cx="100" cy="130" rx="50" ry="48" fill="url(#gBody)"/>`;
+    cap = `<path d="M46 116 Q100 52 154 116 Q100 102 46 116Z" fill="url(#gCap)"/>`
+        + capTexture(60,108,140,6) + `<rect x="95" y="64" width="10" height="16" rx="5" fill="url(#gCap)"/>`;
+    eyeY = 132; top = 62;
+  } else if(v==='B'){
+    body = `<ellipse cx="100" cy="134" rx="42" ry="50" fill="url(#gBody)"/>`;
+    cap = `<path d="M54 114 Q100 62 146 114 Q100 102 54 114Z" fill="url(#gCap)"/>` + capTexture(64,106,136,5)
+        + `<rect x="96" y="70" width="8" height="14" rx="4" fill="url(#gCap)"/>`
+        + `<path d="M100 76 Q84 52 64 60 Q80 80 100 76Z" fill="url(#gLeaf)"/><path d="M100 76 Q86 66 72 62" stroke="#3a7429" stroke-width="1.5" fill="none"/>`;
+    eyeY = 136; top = 68;
+  } else {
+    body = `<ellipse cx="100" cy="140" rx="46" ry="42" fill="url(#gBody)"/>`;
+    cap = `<path d="M42 128 Q54 72 112 76 Q160 82 160 124 Q100 108 42 128Z" fill="url(#gCap)"/>` + capTexture(58,112,146,5)
+        + `<circle cx="120" cy="74" r="7" fill="url(#gCap)"/>`;
+    eyeY = 142; top = 66;
+  }
+  s += body;
+  // 몸 하이라이트(빛 반사)와 모자 아래 그늘
+  const hy = v==='C'?122:116;
+  s += `<ellipse cx="78" cy="${hy+4}" rx="14" ry="9" fill="#fff" opacity=".28" filter="url(#fBlush)"/>`;
+  s += `<ellipse cx="100" cy="${v==='C'?122:116}" rx="40" ry="7" fill="#3e2612" opacity=".35" filter="url(#fBlush)"/>`;
+  // 팔
+  if(stage>=4){
+    s += `<path d="M54 146 Q38 138 36 124" stroke="url(#gCap)" stroke-width="10" stroke-linecap="round" fill="none"/><path d="M146 146 Q162 138 164 124" stroke="url(#gCap)" stroke-width="10" stroke-linecap="round" fill="none"/>`;
+  }
+  s += cap;
+  // 모자 위 광택
+  s += `<ellipse cx="${v==='C'?80:84}" cy="${v==='C'?92:88}" rx="14" ry="5" fill="#fff" opacity=".22" transform="rotate(-18 84 88)"/>`;
+  // 새싹 (2~3단계)
+  if(stage===2 || stage===3){
+    s += `<path d="M100 ${top+14} L100 ${top}" stroke="#3a7429" stroke-width="4" stroke-linecap="round"/>`
+       + `<path d="M100 ${top} Q86 ${top-14} 76 ${top-4} Q88 ${top+6} 100 ${top}Z" fill="url(#gLeaf)"/>`
+       + `<path d="M100 ${top} Q114 ${top-14} 124 ${top-4} Q112 ${top+6} 100 ${top}Z" fill="url(#gLeaf)"/>`;
+  }
+  // 잎사귀 모자 (4단계)
+  if(stage===4){
+    s += `<path d="M66 96 Q100 30 136 96 Q100 82 66 96Z" fill="url(#gLeaf)"/><path d="M100 50 L100 92" stroke="#3a7429" stroke-width="2"/>`
+       + `<ellipse cx="88" cy="66" rx="8" ry="4" fill="#fff" opacity=".3"/>`;
+  }
+  s += face(v, eyeY, mood);
+  return `<svg viewBox="0 0 200 200" role="img" aria-label="토리 ${stage}단계">${s}</svg>`;
+}
+function capTexture(x1,y,x2,step){
+  let s='';
+  for(let x=x1;x<=x2;x+=step*2.2){ s+=`<path d="M${x} ${y} q${step} -${step} ${step*2} 0" stroke="#3e2612" stroke-width="1.4" fill="none" opacity=".45"/>`; }
+  for(let x=x1+step;x<=x2-step;x+=step*2.2){ s+=`<path d="M${x} ${y-8} q${step} -${step} ${step*2} 0" stroke="#3e2612" stroke-width="1.4" fill="none" opacity=".35"/>`; }
+  return s;
+}
+
+// 숲: 심은 나무 자리(뒤쪽부터)
+const SLOTS = [[300,150],[200,160],[400,158],[120,178],[480,176],[250,196],[360,198],[60,206],[540,204],[160,222],[440,224],[300,232],[100,246],[500,246],[220,252]];
+function forestTree(x,y,i,v){
+  const sc = 0.62 + (y-150)/400;
+  const hue = ['url(#gLeaf)','url(#gLeafDeep)'][i%2];
+  const fruit = ['#ff8f86','#ffd36b','#f7a8d8'][i%3];
+  return `<g transform="translate(${x} ${y}) scale(${sc})">
+    <ellipse cx="0" cy="4" rx="34" ry="7" fill="#1c2a12" opacity=".25" filter="url(#fBlush)"/>
+    <path d="M-9 2 Q-7 -34 -6 -50 L6 -50 Q7 -34 9 2Z" fill="url(#gTrunk)"/>
+    <circle cx="-22" cy="-62" r="22" fill="url(#gLeafDeep)"/><circle cx="22" cy="-62" r="22" fill="url(#gLeafDeep)"/><circle cx="0" cy="-80" r="28" fill="${hue}"/>
+    <ellipse cx="-10" cy="-94" rx="10" ry="5" fill="#fff" opacity=".3"/>
+    <circle cx="14" cy="-70" r="4" fill="${fruit}"/><circle cx="-18" cy="-58" r="3" fill="${fruit}"/>
+    <path d="M-4 -24 q2 2 4 0 M2 -24 q2 2 4 0" stroke="#2b1d12" stroke-width="1.6" fill="none" stroke-linecap="round" transform="translate(-1 0)"/>
+    <ellipse cx="-6" cy="-19" rx="3" ry="1.8" fill="#ff8f86" opacity=".6"/><ellipse cx="7" cy="-19" rx="3" ry="1.8" fill="#ff8f86" opacity=".6"/>
+  </g>`;
+}
+// ---- 성장 규칙 (나무 한 그루 ≈ 하루 4개 × 25일) ----
+const STAGES = [
+  {name:'도토리', need:0},{name:'싹이 난 도토리', need:10},{name:'다리가 생긴 새싹', need:30},
+  {name:'잎사귀 모자 토리', need:60},{name:'작은 나무 토리', need:100}
+];
+const DAILY_CAP = 10, GOAL = 3;
+const MILES = [
+  {n:1, t:'첫 나무', d:'숲 이름 붙이기'},
+  {n:3, t:'작은 연못', d:'숲 가운데 연못'},
+  {n:6, t:'버섯 마을', d:'나무 사이 버섯 집'},
+  {n:10, t:'다람쥐 이웃', d:'다람쥐가 이사 와요'},
+  {n:15, t:'꽃길', d:'숲 둘레에 꽃'}
+];
+const CHEER = ['','하나 끝! 물 맛있다~','오, 벌써 두 개째야?','오늘 목표 달성! 별사탕 받았어!','최고야! 오늘 정말 부지런하다.'];
+
+const KEY = 'tori-forest-v1';
+function todayStr(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function daysBetween(a,b){return Math.round((new Date(b)-new Date(a))/86400000);}
+function fresh(){return {drops:0, total:0, candy:0, forest:0, forestName:'', day:todayStr(), lastSeen:todayStr(), dayDrops:0, goalPaid:false, tasks:[]};}
+let S;
+try{ S = JSON.parse(localStorage.getItem(KEY)) || fresh(); }catch(e){ S = fresh(); }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+// 날짜가 바뀌면: 반복 할 일은 다시 미완료, 한 번짜리 완료 항목은 정리
+let sleepy = false;
+(function rollDay(){
+  const t = todayStr();
+  if(S.day !== t){
+    S.tasks = S.tasks.filter(x=>x.repeat || !x.done).map(x=>({...x, done:false}));
+    S.day = t; S.dayDrops = 0; S.goalPaid = false;
+  }
+  if(daysBetween(S.lastSeen, t) >= 2) sleepy = true;
+  S.lastSeen = t; save();
+})();
+
+function stageOf(d){let s=1;STAGES.forEach((x,i)=>{if(d>=x.need)s=i+1});return s;}
+function say(t){document.getElementById('bubble').textContent=t;}
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function render(){
+  const st = stageOf(S.drops);
+  document.getElementById('hero').innerHTML = tori('A', st, sleepy?'sleep':'normal');
+  const cur = STAGES[st-1], next = STAGES[st];
+  const pct = next ? Math.min(100,(S.drops-cur.need)/(next.need-cur.need)*100) : 100;
+  document.getElementById('fill').style.width = pct+'%';
+  document.getElementById('stageName').textContent = `${st}단계 · ${cur.name}`;
+  document.getElementById('dropTxt').textContent = next ? `물방울 ${S.drops} / ${next.need}` : '다 자랐어요!';
+  document.getElementById('plantBtn').hidden = st!==5;
+  document.getElementById('candy').textContent = S.candy;
+  const done = S.tasks.filter(x=>x.done).length;
+  document.getElementById('doneTxt').textContent = `${done} / ${S.tasks.length} 완료 · 오늘 물방울 ${S.dayDrops}/${DAILY_CAP}`;
+  const ul = document.getElementById('tasks');
+  ul.innerHTML = S.tasks.length ? S.tasks.map((x,i)=>`<li class="task ${x.done?'done':''}">
+      <button type="button" class="tap" id="task-${x.id}" data-i="${i}" aria-pressed="${x.done}"><span class="chk">${x.done?'✓':''}</span><span class="t">${esc(x.t)}</span>${x.repeat?'<span class="badge">매일</span>':''}</button>
+      <button type="button" class="del" id="del-${x.id}" data-i="${i}" aria-label="${esc(x.t)} 지우기">×</button></li>`).join('')
+    : '<li class="empty">아직 할 일이 없어요. 아래에 하나 적어 보세요.</li>';
+  ul.querySelectorAll('.tap').forEach(b=>b.onclick=()=>toggle(+b.dataset.i));
+  ul.querySelectorAll('.del').forEach(b=>b.onclick=()=>{S.tasks.splice(+b.dataset.i,1);save();render();});
+  renderForestView();
+}
+function toggle(i){
+  const x = S.tasks[i];
+  if(sleepy){sleepy=false;}
+  if(x.done){
+    x.done=false;
+    if(x.paid){ S.drops=Math.max(0,S.drops-1); S.dayDrops=Math.max(0,S.dayDrops-1); x.paid=false; }
+    say('괜찮아, 다시 하면 돼.');
+  } else {
+    x.done=true;
+    const before = stageOf(S.drops);
+    if(S.dayDrops < DAILY_CAP){ S.drops++; S.total++; S.dayDrops++; x.paid=true; }
+    const done = S.tasks.filter(t=>t.done).length;
+    if(done>=GOAL && !S.goalPaid){ S.candy++; S.goalPaid=true; say(CHEER[3]); }
+    else say(x.paid ? CHEER[Math.min(done,4)] || CHEER[4] : '오늘 물방울은 다 받았어. 그래도 잘했어!');
+    const after = stageOf(S.drops);
+    if(after>before) say(after===5 ? '나 이제 작은 나무야! 숲에 심어 줄래?' : `와! ${STAGES[after-1].name}(으)로 자랐어!`);
+  }
+  save(); render();
+}
+document.getElementById('addForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const inp=document.getElementById('newTask'), t=inp.value.trim();
+  if(!t){ inp.focus(); return; }
+  S.tasks.push({id:Date.now().toString(36), t, repeat:document.getElementById('repeat').checked, done:false});
+  inp.value=''; document.getElementById('repeat').checked=false;
+  sleepy=false; say('좋아, 같이 해 보자!'); save(); render();
+});
+document.getElementById('plantBtn').onclick=()=>{
+  S.forest++; S.drops=0;
+  const m = MILES.find(m=>m.n===S.forest);
+  if(S.forest===1){
+    const name = (document.getElementById('forestNameInput')||{}).value;
+    S.forestName = name || '';
+  }
+  say(m ? `숲에 ${m.t}이(가) 생겼어! 새 도토리도 잘 부탁해.` : '숲에 심었어! 새 도토리도 잘 부탁해.');
+  save(); render();
+};
+
+// ---- 내 숲 ----
+function renderForestView(){
+  const n = S.forest;
+  let s = `<svg viewBox="0 0 600 290" role="img" aria-label="내 숲, 나무 ${n}그루">`;
+  s += `<circle cx="520" cy="54" r="26" fill="#ffe9a3" opacity=".9"/>`;
+  s += `<ellipse cx="160" cy="58" rx="40" ry="12" fill="#fff" opacity=".7"/><ellipse cx="190" cy="50" rx="26" ry="12" fill="#fff" opacity=".7"/>`;
+  s += `<path d="M0 170 Q150 120 300 140 Q460 118 600 160 L600 290 L0 290Z" fill="url(#gHill)"/>`;
+  s += `<path d="M0 200 Q200 170 360 190 Q500 176 600 196 L600 290 L0 290Z" fill="#5f9a45" opacity=".35"/>`;
+  if(n>=3) s += `<ellipse cx="310" cy="262" rx="70" ry="16" fill="url(#gWater)"/><ellipse cx="292" cy="258" rx="22" ry="4" fill="#fff" opacity=".5"/>`;
+  if(n>=15) for(let i=0;i<24;i++){const x=12+i*25, y=282-(i%2)*6; s+=`<circle cx="${x}" cy="${y}" r="4" fill="${['#ff8f86','#ffd36b','#f7a8d8'][i%3]}"/><circle cx="${x}" cy="${y}" r="1.6" fill="#fff"/>`;}
+  SLOTS.slice(0, Math.min(n, SLOTS.length)).map((p,i)=>({x:p[0],y:p[1],i})).sort((a,b)=>a.y-b.y).forEach(t=>{ s += forestTree(t.x,t.y,t.i,'A'); });
+  if(n>=6){ [[150,262],[470,262]].forEach(([x,y])=>{ s+=`<g transform="translate(${x} ${y})"><rect x="-6" y="-14" width="12" height="16" rx="3" fill="#f6ecd8"/><path d="M-18 -12 Q0 -36 18 -12Z" fill="#e3574c"/><circle cx="-6" cy="-20" r="2.5" fill="#fff"/><circle cx="6" cy="-16" r="2" fill="#fff"/><rect x="-2" y="-7" width="4" height="7" rx="2" fill="#7c4b22"/></g>`; }); }
+  if(n>=10){ s += `<g transform="translate(395 250)"><ellipse cx="0" cy="0" rx="10" ry="12" fill="#c77a3e"/><circle cx="0" cy="-14" r="8" fill="#c77a3e"/><path d="M8 4 Q26 -6 16 -26 Q8 -14 6 -2Z" fill="#a8612c"/><circle cx="-3" cy="-15" r="1.6" fill="#2b1d12"/><circle cx="3" cy="-15" r="1.6" fill="#2b1d12"/></g>`; }
+  if(n===0) s += `<text x="300" y="225" text-anchor="middle" font-family="Jua, sans-serif" font-size="20" fill="#2f3a2c" opacity=".6">토리를 키워 첫 나무를 심어 보세요</text>`;
+  s += `</svg>`;
+  document.getElementById('forestView').innerHTML = s;
+  document.getElementById('forestCount').textContent = `나무 ${n}그루 · 물방울 누적 ${S.total}`;
+  document.getElementById('forestName').innerHTML = n>=1
+    ? (S.forestName ? esc(S.forestName) : `<input id="forestNameInput" type="text" maxlength="12" placeholder="숲 이름 짓기" aria-label="숲 이름" style="font:inherit;border:1.5px solid var(--line);border-radius:10px;padding:2px 8px;width:9em;background:var(--surface);color:var(--ink)">`)
+    : '내 숲';
+  const fi = document.getElementById('forestNameInput');
+  if(fi) fi.onchange=()=>{ S.forestName=fi.value.trim(); save(); render(); };
+  document.getElementById('miles').innerHTML = MILES.map(m=>`<li class="${n>=m.n?'on':''}"><b>${m.n}그루 · ${m.t}</b><span>${n>=m.n?'열림':m.d}</span></li>`).join('');
+}
+
+// ---- 탭 ----
+function show(tab){
+  document.getElementById('view-today').hidden = tab!=='today';
+  document.getElementById('view-forest').hidden = tab!=='forest';
+  document.getElementById('tab-today').setAttribute('aria-selected', tab==='today');
+  document.getElementById('tab-forest').setAttribute('aria-selected', tab==='forest');
+}
+document.getElementById('tab-today').onclick=()=>show('today');
+document.getElementById('tab-forest').onclick=()=>show('forest');
+let confirmArm=false;
+document.getElementById('resetAll').onclick=e=>{
+  if(!confirmArm){ confirmArm=true; e.target.textContent='한 번 더 누르면 모두 지워져요'; return; }
+  S=fresh(); save(); confirmArm=false; e.target.textContent='기록 모두 지우기'; say('안녕! 나는 토리야. 할 일을 하나 적어 줄래?'); render(); show('today');
+};
+
+const d=new Date();document.getElementById('today').textContent=`${d.getMonth()+1}월 ${d.getDate()}일`;
+if(sleepy) say('쿨... 쿨... (할 일을 하나 하면 깨어나요)');
+else if(S.tasks.length) say('왔구나! 오늘도 같이 해 보자.');
+render();
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));}
+</script>
+</body>
+</html>
